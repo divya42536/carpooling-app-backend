@@ -14,7 +14,9 @@ The Car Pooling App is a mobile-first application designed to facilitate seamles
 --------
 ##Key Features
 
-### 👤 User Management Secure Registration & Login: Users can register and authenticate using a username and password. Role Management: Users can enable the Driver role from their profile settings. Profile Management: Update personal details and manage role preferences.
+### 👤 User Management Secure Registration & Login: 
+
+Users can register and authenticate using a username and password. Role Management: Users can enable the Driver role from their profile settings. Profile Management: Update personal details and manage role preferences.
 
 ### 🚗 Ride Management
 
@@ -24,7 +26,9 @@ For Drivers Create Ride Listings: Define pickup location, destination, date/time
 
 Search for rides by location, date, and time. View Ride Details: See driver info, route details, and seat availability. 
 
-## Book Seats: Request or book available seats on rides. Booking Status: Track request status (Pending, Accepted, Rejected). Booking History: View past and upcoming rides.
+## Book Seats: 
+
+Request or book available seats on rides. Booking Status: Track request status (Pending, Accepted, Rejected). Booking History: View past and upcoming rides.
 
 ###⭐ Ratings & Feedback Drivers and riders can rate each other after ride completion to build trust and accountability.
 
@@ -35,7 +39,11 @@ Search for rides by location, date, and time. View Ride Details: See driver info
 
 --------------------
 
-## 🛠 Tech Stack Frontend: React Native, Google Maps API Backend: Python (Django) Database: PostgreSQL Deployment: Render
+## 🛠 Tech Stack : 
+Frontend: React Native, Google Maps API 
+Backend: Python (Django) 
+Database: PostgreSQL 
+Deployment: Render
 
 ## ⚙️ Installation & Setup
 
