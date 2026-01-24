@@ -124,3 +124,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+[pytest]
+DJANGO_SETTINGS_MODULE = carpooling.settings
+# python_files = tests.py test_*.py
