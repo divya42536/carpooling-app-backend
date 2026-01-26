@@ -1,10 +1,10 @@
 """
-WSGI config for carpooling_app project.
+WSGI config for carpooling project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
+https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
