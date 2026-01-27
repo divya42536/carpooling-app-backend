@@ -1,7 +1,10 @@
-from django.urls import path
-from users import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import PersonViewSet
 
-urlpatterns= [
-    path('RiderInfo/',views.Rider)
+router = DefaultRouter()
+router.register(r'persons', PersonViewSet, basename='person')
 
+urlpatterns = [
+    path('', include(router.urls)),
 ]
