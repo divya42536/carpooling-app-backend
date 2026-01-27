@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import User
 
 # Create your models here.
 class Ride(models.Model):
@@ -12,4 +13,3 @@ class Booking(models.Model):
     rider= models.ForeignKey(User, on_delete=models.CASCADE)
     ride= models.ForeignKey(Ride, on_delete=models.CASCADE)
     status= models.CharField(max_length=20)
-    

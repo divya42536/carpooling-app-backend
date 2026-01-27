@@ -6,22 +6,43 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 # Create your views here.
-#    def post(self, request, ride_id):
-#         Booking.Objects.create(
-#             rider=request.User,
-#             ride_id= ride_id,
-#             status="CONFIRMED"
-#         )
-#         return Response({"message": "Ride booked"})
 
 class RiderInfo(APIView):
-    def post(self, request, rider_id,FirstName,LastName,Email,Phone):
-        Rider.Objects.create(
-            rider=request.Rider,
-            rider_id= rider_id,
-            FirstName= Rider.FirstName,
-            LastName= Rider.LastName,
-            Email= Rider.Email,
-            Phone= Rider.Phone
+    def post(self, request):
+        rider = Rider.objects.create(
+            first_name=request.data.get("first_name"),
+            last_name=request.data.get("last_name"),
+            email=request.data.get("email"),
+            phone=request.data.get("phone"),
         )
-        return Response({"message": "Rider details"})
+
+        return Response(
+            {
+                "message": "Rider created successfully",
+                "rider_id": rider.id
+            },
+            status=status.HTTP_201_CREATED
+        )
+class DriverInfo(APIView):
+    def post(self, request):
+        driver = Driver.objects.create(
+            first_name=request.data.get("first_name"),
+            last_name=request.data.get("last_name"),
+            email=request.data.get("email"),
+            phone=request.data.get("phone"),
+            car_number=request.data.get("car_number"),
+            driver_license=request.data.get("driver_license"),
+        )
+
+        return Response(
+            {
+                "message": "Driver created successfully",
+                "driver_id": driver.id
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    
+
+    
+
