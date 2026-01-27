@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'rides.apps.RidesConfig',
-    'accounts.apps.AccountsConfig',
+   
     'rest_framework',
 ]
 
