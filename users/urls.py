@@ -5,6 +5,7 @@ from .views import PersonViewSet, LoginView
 router = DefaultRouter()
 router.register(r'persons', PersonViewSet, basename='person')
 
+
 urlpatterns = [
     path('', include(router.urls)),
     path("login/", LoginView.as_view(), name="login"),
