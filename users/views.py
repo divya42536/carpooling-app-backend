@@ -1,58 +1,25 @@
-# from django.shortcuts import render
-# from django.http import HttpResponse
-# from .models import Rider
-# from .models import Driver
-# from rest_framework import status
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-
-# Create your views here.
-
 from rest_framework.viewsets import ModelViewSet
 from .models import Person
-from .serializers import PersonSerializer
+from .serializers import PersonSerializer, LoginSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class PersonViewSet(ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
 
-# class RiderInfo(APIView):
-#     def post(self, request):
-#         rider = Rider.objects.create(
-#             first_name=request.data.get("first_name"),
-#             last_name=request.data.get("last_name"),
-#             email=request.data.get("email"),
-#             phone=request.data.get("phone"),
-#         )
+class LoginView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
 
-#         return Response(
-#             {
-#                 "message": "Rider created successfully",
-#                 "rider_id": rider.id
-#             },
-#             status=status.HTTP_201_CREATED
-#         )
-# class DriverInfo(APIView):
-#     def post(self, request):
-#         driver = Driver.objects.create(
-#             first_name=request.data.get("first_name"),
-#             last_name=request.data.get("last_name"),
-#             email=request.data.get("email"),
-#             phone=request.data.get("phone"),
-#             car_number=request.data.get("car_number"),
-#             driver_license=request.data.get("driver_license"),
-#         )
+        if serializer.is_valid():
+            user = serializer.validated_data["user"]
+            return Response({
+                "message": "Login successful",
+                "user_id": user.id,
+                "username": user.username
+            }, status=status.HTTP_200_OK)
 
-#         return Response(
-#             {
-#                 "message": "Driver created successfully",
-#                 "driver_id": driver.id
-#             },
-#             status=status.HTTP_201_CREATED
-#         )
-
-    
-
-    
-
-# # 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
