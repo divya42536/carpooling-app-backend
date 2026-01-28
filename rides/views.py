@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import RideSerializer
 from rest_framework import status
+from datetime import datetime
 
 # Create your views here.
 # logic handling path is : Request → View → Model → View → Response
@@ -24,7 +25,7 @@ from rest_framework import status
 #         return Response({"message": "Ride booked"})
 
 @api_view(['POST']) 
-def ride_list_create(request):
+def ride_list(request):
     if request.method == 'POST':
         serializer = RideSerializer(data=request.data)
         if serializer.is_valid():
@@ -63,6 +64,39 @@ def get_ride_detail(request,pk):
         ride.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# @api_view(['GET'])
-# def search_ride(request):
-#     search_start_location = request.get
+@api_view(['GET'])
+def search_ride(request):
+    search_start_location = request.query_params.get('start_location')
+    search_end_location = request.query_params.get('end_location')
+    search_earliest_datetime = request.query_params.get('earliest_datetime')
+    search_latest_datetime = request.query_params.get('latest_datetime')
+    search_ride_type = request.query_params.get('ride_type')
+
+    if not all([search_start_location, search_end_location, search_earliest_datetime, search_latest_datetime, search_ride_type]):
+        return Response(
+            {"error": "All search parameters must be provided."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    try:
+        search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime)
+        search_latest_datetime = datetime.fromisoformat(search_latest_datetime)
+    except ValueError:
+        return Response(
+            {"error": "Invalid datetime format. Use ISO format."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # If all parameters are provided, proceed with the search logic
+    rides = Ride.objects.filter(
+        start_location=search_start_location,
+        end_location=search_end_location,
+        earliest_datetime__gte=search_earliest_datetime,
+        latest_datetime__lte=search_latest_datetime,
+        ride_type=search_ride_type
+    )
+
+    if search_ride_type == 'OFFER':
+        rides = rides.filter(available_seats__gt=0)
+
+    serializer = RideSerializer(rides, many=True)
+    return Response(serializer.data)
