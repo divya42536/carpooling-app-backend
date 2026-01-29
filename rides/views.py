@@ -24,7 +24,7 @@ from datetime import datetime
 #         )
 #         return Response({"message": "Ride booked"})
 
-@api_view(['POST']) 
+@api_view(['POST', 'GET']) 
 def ride_list(request):
     if request.method == 'POST':
         serializer = RideSerializer(data=request.data)
@@ -37,12 +37,8 @@ def ride_list(request):
         serializer = RideSerializer(rides, many=True)
         return Response(serializer.data)
 
-# @api_view(['GET'])
-# def get_ride_list(request):
-#     rides = Ride.objects.all()
-#     serializer = RideSerializer(rides, many=True)
-#     return Response(serializer.data)
-@api_view(['GET','PUT', 'DELETE'])
+
+@api_view(['GET', 'DELETE'])
 def get_ride_detail(request,pk):
     try:
         ride = Ride.objects.get(id=pk)
@@ -54,12 +50,12 @@ def get_ride_detail(request,pk):
     if request.method == 'GET':
         serializer = RideSerializer(ride, many=False)
         return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = RideSerializer(ride, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # elif request.method == 'PUT':
+    #     serializer = RideSerializer(ride, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         ride.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -90,8 +86,8 @@ def search_ride(request):
     rides = Ride.objects.filter(
         start_location=search_start_location,
         end_location=search_end_location,
-        earliest_datetime__gte=search_earliest_datetime,
-        latest_datetime__lte=search_latest_datetime,
+        earliest_time__lte=search_latest_datetime,
+        latest_time__gte=search_earliest_datetime,
         ride_type=search_ride_type
     )
 

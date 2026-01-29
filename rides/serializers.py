@@ -6,6 +6,7 @@ class RideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = '__all__'
+        read_only_fields = ['carpooler','created_at']
 
     def validate(self,data):
         ride_type = data.get('ride_type')

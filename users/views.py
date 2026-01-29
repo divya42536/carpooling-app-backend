@@ -1,7 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
 from .models import Person
 from .serializers import PersonSerializer, LoginSerializer
+from rides.serializers import RideSerializer
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -23,3 +25,15 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+def create_ride_for_person(request, person_id):
+    try:
+        person = Person.objects.get(pk=person_id)
+    except Person.DoesNotExist:
+        return Response({"error": "Person not found"}, status=404)
+    serializer = RideSerializer(data=request.data)
+    if serializer.is_valid():
+        ride = serializer.save(carpooler=person)
+        return Response(RideSerializer(ride).data, status=201)
+    return Response(serializer.errors, status=400)
