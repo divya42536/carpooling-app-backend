@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
-
+import secrets
 
 # # Create your models here.
 class Person(models.Model):
@@ -14,9 +14,13 @@ class Person(models.Model):
     is_driver = models.BooleanField(default=False)
     # car_number = models.CharField(max_length=50, null=True, blank=True)
     # driver_license = models.CharField(max_length=50, null=True, blank=True)
+    # token = models.CharField(max_length=40, blank=True, null=True)
 
     def __str__(self):
         return self.username
 
-
+    # def generate_token(self):
+    #     self.token = secrets.token_hex(20)
+    #     self.save()
+    #     return self.token
 

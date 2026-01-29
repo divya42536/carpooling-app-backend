@@ -4,29 +4,26 @@ from .models import Rating
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ['score','comment']
+        fields = ['id', 'ride','score','comment']
     
-    def validate_score(Self, value):
-        if not 1 <= value <= 5:
-            raise serializers.ValidationError("Score must be between 1 and 5.")
-        return value
-    
-    def create(self, validated_data):
-        ride = self.context['ride']
-        user = self.context['request'].user
+    # def validate(self, data):
+    #     request = self.context['request']
+    #     ride = data['ride']
+    #     user = request.user
 
-        # Determine who is rating whom
-        if user == ride.driver:
-            validated_data['rater'] = ride.driver
-            validated_data['ratee'] = ride.rider
-        elif user == ride.rider:
-            validated_data['rater'] = ride.rider
-            validated_data['ratee'] = ride.driver
-        else:
-            raise serializers.ValidationError("You are not part of this ride.")
+    #     if user not in [ride.driver, ride.rider]:
+    #         raise serializers.ValidationError("You were not part of this ride.")
 
-        validated_data['ride'] = ride
-        return super().create(validated_data)
+    #     if user == ride.driver:
+    #         data['reviewee'] = ride.rider
+    #     else:
+    #         data['reviewee'] = ride.driver
+
+    #     data['reviewer'] = user
+    #     return data
+
+    # def create(self, validated_data):
+    #     return Rating.objects.create(**validated_data)
 
 
 
