@@ -29,6 +29,12 @@ class PersonSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
         return super().create(validated_data)
+    
+    def average_rating(self):
+        ratings = self.ratings_received.all()
+        if ratings.exists():
+            return sum(r.score for r in ratings) / ratings.count()
+        return None
 
 class LoginSerializer(serializers.Serializer):
     username= serializers.CharField()
