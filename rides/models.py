@@ -4,7 +4,7 @@ from users.models import Person
 # Create your models here.
 class Ride(models.Model):
     RIDE_TYPE_CHOICES = [('OFFER', 'Offer ride'), # driver offers a ride
-                         ('REQUEST', 'Request ride')] # riderrequests a ride
+                        ('REQUEST', 'Request ride')] # riderrequests a ride
     carpooler = models.ForeignKey(Person, on_delete=models.CASCADE)
     ride_type= models.CharField(max_length=10, choices=RIDE_TYPE_CHOICES)
 
@@ -20,7 +20,3 @@ class Ride(models.Model):
         return f"{self.start_location} to {self.end_location}"
 
 
-# class Booking(models.Model):
-#     rider= models.ForeignKey(User, on_delete=models.CASCADE)
-#     ride= models.ForeignKey(Ride, on_delete=models.CASCADE)
-#     status= models.CharField(max_length=20)
