@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rides.apps.RidesConfig',
     'ratings.apps.RatingsConfig',
-   
+    'bookings.apps.BookingsConfig', 
     'rest_framework',
     'rest_framework.authtoken',
 ]
