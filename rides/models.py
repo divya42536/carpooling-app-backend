@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import Person
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Ride(models.Model):
@@ -18,5 +19,15 @@ class Ride(models.Model):
 
     def __str__(self):
         return f"{self.start_location} to {self.end_location}"
+    
+    def clean(self):
+        # Ensure latest_time >= earliest_time
+        if self.latest_time < self.earliest_time:
+            raise ValidationError("latest_time cannot be earlier than earliest_time")
+
+        # Business rule: Offer rides must have available seats
+        if self.ride_type == "OFFER" and self.available_seats is None:
+            raise ValidationError("Offer rides must have available seats")
+
 
 

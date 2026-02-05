@@ -1,6 +1,7 @@
 from django.db import models
 from rides.models import Ride
 from users.models import Person
+from django.core.exceptions import ValidationError
 # Create your models here.
 class Rating(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.CASCADE, related_name="ratings")
@@ -13,4 +14,8 @@ class Rating(models.Model):
 
     def __str__(self):
         # return f"{self.reviewer} → {self.reviewee} ({self.score})"
-        return ({self.score})
+        return f"Rating: {self.score}"
+    
+    def clean(self):
+        if self.score < 1 or self.score > 5:
+            raise ValidationError("Score must be between 1 and 5")
