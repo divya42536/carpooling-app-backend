@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-1=^20xf4yg0t%)+qa)z7rmm=1o6%gy6f(m@7c1hph_7xmo%5tz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['10.0.2.2']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'bookings.apps.BookingsConfig', 
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
+   
 ]
 
 MIDDLEWARE = [
@@ -53,7 +55,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'carpooling.urls'
 

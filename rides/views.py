@@ -74,8 +74,10 @@ def search_ride(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     try:
-        search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime)
-        search_latest_datetime = datetime.fromisoformat(search_latest_datetime)
+        # search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime)
+        # search_latest_datetime = datetime.fromisoformat(search_latest_datetime)
+        search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime.replace("Z", "+00:00"))
+        search_latest_datetime = datetime.fromisoformat(search_latest_datetime.replace("Z", "+00:00"))
     except ValueError:
         return Response(
             {"error": "Invalid datetime format. Use ISO format."},

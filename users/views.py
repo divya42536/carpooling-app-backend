@@ -22,7 +22,7 @@ class LoginView(APIView):
                 "message": "Login successful",
                 "user_id": user.id,
                 "username": user.username,
-                "password": user.password,
+                # "password": user.password,
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -53,18 +53,18 @@ def create_ride_for_person(request, person_id):
 
 
 
-@api_view(['POST'])
-def login(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
+# @api_view(['POST'])
+# def login(request):
+#     username = request.data.get('username')
+#     password = request.data.get('password')
 
-    try:
-        user = Person.objects.get(username=username)
-    except Person.DoesNotExist:
-        return Response({"error": "Invalid credentials"}, status=400)
+#     try:
+#         user = Person.objects.get(username=username)
+#     except Person.DoesNotExist:
+#         return Response({"error": "Invalid credentials"}, status=400)
 
-    if not check_password(password, user.password):
-        return Response({"error": "Invalid credentials"}, status=400)
+#     if not check_password(password, user.password):
+#         return Response({"error": "Invalid credentials"}, status=400)
 
     # token = user.generate_token()
     # return Response({"token": token, "user_id": user.id, "username": user.username})

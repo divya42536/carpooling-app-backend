@@ -8,11 +8,13 @@ class Booking(models.Model):
     STATUS_PENDING = "pending"
     STATUS_CONFIRMED = "confirmed"
     STATUS_CANCELLED = "cancelled"
+    STATUS_REJECTED = "rejected"
 
     STATUS_CHOICES = [
         (STATUS_PENDING, "Pending"),
         (STATUS_CONFIRMED, "Confirmed"),
         (STATUS_CANCELLED, "Cancelled"),
+        (STATUS_REJECTED, "Rejected"),
     ]   
 
     rider = models.ForeignKey(Person, on_delete=models.CASCADE)

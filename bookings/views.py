@@ -78,10 +78,33 @@ def cancel_booking(request, booking_id, person_id):
     if person_id not in [booking.rider.id, booking.ride.carpooler.id]:
         return Response({"error": "You are not authorized to cancel this booking"}, status=status.HTTP_403_FORBIDDEN)
 
-    if booking.status == Booking.STATUS_CONFIRMED:
-        booking.ride.available_seats += 1
-        booking.ride.save()
+    if booking.status != Booking.STATUS_CONFIRMED:
+        return Response(
+            {"error": "Only confirmed bookings can be cancelled"},
+            status=400
+        )
 
     booking.status = Booking.STATUS_CANCELLED
     booking.save()
+
+    booking.ride.available_seats += 1
+    booking.ride.save()
     return Response({"message": "Booking cancelled"}, status=200)
+
+@api_view(['PATCH'])
+def reject_booking(request, booking_id, person_id):
+    try:
+        booking = Booking.objects.get(id=booking_id)
+        person = Person.objects.get(id=person_id)
+    except (Booking.DoesNotExist, Person.DoesNotExist):
+        return Response({"error": "Booking or person not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    ride = booking.ride
+    if ride.carpooler != person:
+        return Response({"error": "You are not the driver of this ride"}, status=status.HTTP_403_FORBIDDEN)
+    if booking.status != Booking.STATUS_PENDING:
+        return Response({"error": f"Booking is not pending, It is {booking.status}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    booking.status = Booking.STATUS_REJECTED
+    booking.save()
+    return Response({"message": "Booking rejected"}, status=200)    
