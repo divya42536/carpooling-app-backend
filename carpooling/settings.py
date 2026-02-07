@@ -43,12 +43,8 @@ INSTALLED_APPS = [
     'bookings.apps.BookingsConfig', 
     'rest_framework',
     'rest_framework.authtoken',
-<<<<<<< Updated upstream
     'corsheaders',
-   
-=======
-    'rest_framework',
->>>>>>> Stashed changes
+   'rest_framework',
 ]
 
 MIDDLEWARE = [
