@@ -27,7 +27,13 @@ SECRET_KEY = 'django-insecure-1=^20xf4yg0t%)+qa)z7rmm=1o6%gy6f(m@7c1hph_7xmo%5tz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2']
+# ALLOWED_HOSTS = ['10.0.2.2']
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "carpooling-backend-application.onrender.com",
+
+]
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
@@ -106,7 +112,8 @@ WSGI_APPLICATION = 'carpooling.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600, 
     )
 }
 
