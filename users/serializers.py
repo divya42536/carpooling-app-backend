@@ -62,13 +62,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = [
-            'FirstName',
-            'LastName',
-            'UserName',
-            'Phone',
-            'EmailID',
+            'first_name',
+            'last_name',
+            'username',
+            'phone',
+            'email',
             'password',
-            'confirm_password'
+            'confirmpassword'
         ]
         extra_kwargs = {
             'password': {'write_only': True}
@@ -76,11 +76,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data['password'] != data['confirmpassword']:
-            raise serializers.ValidationError("Passwords do not match")
+            raise serializers.ValidationError({"password": "Passwords do not match"})
         return data
 
     def create(self, validated_data):
         validated_data.pop('confirmpassword')
-        validated_data['password'] = make_password(validated_data['password'])  # hash password
+        validated_data['password'] = make_password(validated_data['password'])
         user = Person.objects.create(**validated_data)
         return user
