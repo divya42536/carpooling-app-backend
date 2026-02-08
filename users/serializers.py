@@ -54,3 +54,33 @@ class LoginSerializer(serializers.Serializer):
 
         data["user"] = user
         return data
+    
+
+class RegisterSerializer(serializers.ModelSerializer):
+    confirmpassword = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Person
+        fields = [
+            'FirstName',
+            'LastName',
+            'UserName',
+            'Phone',
+            'EmailID',
+            'password',
+            'confirm_password'
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def validate(self, data):
+        if data['password'] != data['confirmpassword']:
+            raise serializers.ValidationError("Passwords do not match")
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop('confirmpassword')
+        validated_data['password'] = make_password(validated_data['password'])  # hash password
+        user = Person.objects.create(**validated_data)
+        return user

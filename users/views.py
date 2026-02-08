@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from .models import Person
-from .serializers import PersonSerializer, LoginSerializer
+from .serializers import PersonSerializer, LoginSerializer, RegisterSerializer
 from rides.serializers import RideSerializer
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -22,7 +22,7 @@ class LoginView(APIView):
                 "message": "Login successful",
                 "user_id": user.id,
                 "username": user.username,
-                # "password": user.password,
+                "password": user.password,
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -52,11 +52,35 @@ def create_ride_for_person(request, person_id):
     return Response(serializer.errors, status=400)
 
 
+# @api_view(['POST'])
+# def login(request):
+#     username = request.data.get('username')
+#     password = request.data.get('password')
+
+#     if not username or not password:
+#         return Response({"error": "Username and password required"}, status=400)
+
+#     try:
+#         user = Person.objects.get(username=username)
+#     except Person.DoesNotExist:
+#         return Response({"error": "Invalid credentials"}, status=400)
+
+#     if not check_password(password, user.password):
+#         return Response({"error": "Invalid credentials"}, status=400)
+
+#     return Response({
+#         "id": user.id,
+#         "username": user.username,
+#         "email": user.email,
+#         "first_name": user.first_name,
+#         "last_name": user.last_name
+#     })
 
 @api_view(['POST'])
 def login(request):
     data= request.data
     username = request.data.get('username')
+    # email = request.data.get('email')
     password = request.data.get('password')
 
     try:
@@ -67,5 +91,27 @@ def login(request):
     if not check_password(password, user.password):
         return Response({"error": "Invalid credentials"}, status=400)
 
-    # token = user.generate_token()
-    # return Response({"token": token, "user_id": user.id, "username": user.username})
+    token = user.generate_token()
+    return Response({"token": token, "user_id": user.id, "username": user.username})
+
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "message": "Registration successful",
+                "user":{
+                "FirstName": user.first_name,
+                "LastName": user.last_name,
+                "UserName": user.username,
+                "Phone": user.phone,
+                "EmailID": user.email,
+                
+                }
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
