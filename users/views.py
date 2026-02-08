@@ -112,5 +112,5 @@ class RegisterView(APIView):
                 }, status=status.HTTP_201_CREATED)
                 
 
-        # If validation fails
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
