@@ -105,13 +105,14 @@ class RegisterView(APIView):
                 user = serializer.save()
             except Exception as e:
                 return Response({
+
                     "message": "Registration successful",
-                    "user":{
-                    "FirstName": user.first_name,
-                    "LastName": user.last_name,
-                    "UserName": user.username,
-                    "Phone": user.phone,
-                    "EmailID": user.email,
+                    "user": {
+                    "username": user.username,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "phone": user.phone
                     
                     }
                 }, status=status.HTTP_200_OK)
