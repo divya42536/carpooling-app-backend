@@ -12,7 +12,7 @@ class Person(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15)
     is_driver = models.BooleanField(default=False)
-    extra_kwargs = {'password': {'write_only': True}}
+    # extra_kwargs = {'password': {'write_only': True}}
     # car_number = models.CharField(max_length=50, null=True, blank=True)
     # driver_license = models.CharField(max_length=50, null=True, blank=True)
     # token = models.CharField(max_length=40, blank=True, null=True)

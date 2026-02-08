@@ -66,12 +66,22 @@ class RegisterSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
+    def validate_username(self, value):
+        if Person.objects.filter(username=value).exists():
+            raise serializers.ValidationError("A user with this username already exists")
+        return value
+
+    def validate_email(self, value):
+        if Person.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists")
+        return value
+
     def validate(self, data):
         if data['password'] != data['confirmpassword']:
-            raise serializers.ValidationError("Password and Confirm Password do not match")
+            raise serializers.ValidationError({"password": "Password and confirm password do not match"})
         return data
 
     def create(self, validated_data):
-        validated_data.pop('confirmpassword')  # remove confirm password before saving
+        validated_data.pop('confirmpassword')
         validated_data['password'] = make_password(validated_data['password'])
         return Person.objects.create(**validated_data)

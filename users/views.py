@@ -101,20 +101,16 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
 
         if serializer.is_valid():
-            try:
-                user = serializer.save()
-            except Exception as e:
-                return Response({
-
+            user = serializer.save()
+            return Response({
                     "message": "Registration successful",
-                    "user": {
                     "username": user.username,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "email": user.email,
                     "phone": user.phone
-                    
-                    }
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_201_CREATED)
+                
 
+        # If validation fails
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
