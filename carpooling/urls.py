@@ -36,8 +36,8 @@ urlpatterns = [
     # App endpoints
     path('api/users/', include('users.urls')),
     path('api/rides/', include('rides.urls')),
-    path('api/ratings/', include('ratings.urls')),
-    path('api/bookings/', include('bookings.urls')),
+    path('api/ratings', include('ratings.urls')),
+    path('api/', include('bookings.urls')),
 
     # Redirect /api/ to API root JSON
     path('api/', api_root),  # now visiting /api/ returns JSON of all endpoints
