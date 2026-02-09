@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from .serializers import RideSerializer
 from rest_framework import status
 from datetime import datetime
-
+from users.models import Person
+from bookings.models import Booking
 # Create your views here.
 # logic handling path is : Request → View → Model → View → Response
 
@@ -98,3 +99,59 @@ def search_ride(request):
 
     serializer = RideSerializer(rides, many=True)
     return Response(serializer.data)
+
+
+
+
+@api_view(['POST'])
+def accept_ride_request(request, ride_request_id):
+    driver_id = request.data.get("userId")
+
+    if not driver_id:
+        return Response({"error": "driverId is required"}, status=400)
+
+    try:
+        ride_request = Ride.objects.get(
+            id=ride_request_id,
+            ride_type="REQUEST"
+        )
+        driver = Person.objects.get(id=driver_id)
+    except (Ride.DoesNotExist, Person.DoesNotExist):
+        return Response({"error": "Ride request or driver not found"}, status=404)
+
+    if ride_request.carpooler == driver:
+        return Response({"error": "Cannot accept your own request"}, status=400)
+    if ride_request.status != "PENDING":
+        return Response({"error": "Request already handled"}, status=400)
+
+    if ride_request.available_seats <= 0:
+        return Response(
+            {"error": "No seats available"},
+            status=400
+        )
+    ride_request.available_seats -= 1
+    ride_request.save()
+    # create booking
+    booking = Booking.objects.create(
+        ride=ride_request,
+        rider=ride_request.carpooler,
+        status=Booking.STATUS_CONFIRMED
+    )
+
+    return Response({
+        "bookingId": booking.id,
+        "status": booking.status,
+        "available_seats": ride_request.available_seats
+    }, status=201)
+
+@api_view(['POST'])
+def reject_ride_request(request, ride_request_id):
+    driver_id = request.data.get("userId")
+
+    if not driver_id:
+        return Response({"error": "driverId is required"}, status=400)
+
+    # no booking created
+    # optionally log rejection for analytics
+
+    return Response({"message": "Ride request rejected"}, status=200)

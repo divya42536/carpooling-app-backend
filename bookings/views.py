@@ -7,12 +7,19 @@ from rest_framework import status
 from rides.models import Ride
 from users.models import Person
 from .models import Booking
-from .serializers import BookingSerializer
+from .serializers import BookingSerializer, BookingListSerializer
 
 
 @api_view(['POST'])
-def book_ride(request, ride_id, person_id):
+def book_ride(request, ride_id):
     #get ride and person details and validate
+    person_id = request.data.get('userId')
+
+    if not person_id:
+        return Response(
+            {"error": "userId is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         ride = Ride.objects.get(id=ride_id)
         person = Person.objects.get(id=person_id)
@@ -32,9 +39,9 @@ def book_ride(request, ride_id, person_id):
 #   elif ride.ride_type == "REQUEST" and ride.carpooler == person:  # driver booking REQUEST
 #         pass  
 
-    serializer = BookingSerializer(data={'ride': ride.id})
+    serializer = BookingSerializer(data={'ride': ride.id}, context={'rider': person})
     if serializer.is_valid():
-        booking = serializer.save(rider=person)  # assign rider here
+        booking = serializer.save(rider=person, status=Booking.STATUS_PENDING)  # assign rider here
         # if ride.ride_type == "OFFER":
         #     ride.available_seats -= 1
         #     ride.save()
@@ -45,7 +52,13 @@ def book_ride(request, ride_id, person_id):
 
 
 @api_view(['PATCH'])
-def confirm_booking(request, booking_id, person_id):
+def confirm_booking(request, booking_id):
+    person_id = request.data.get('userId')
+    if not person_id:
+        return Response(
+            {"error": "userId is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         booking = Booking.objects.get(id=booking_id)
         person = Person.objects.get(id=person_id)
@@ -65,10 +78,20 @@ def confirm_booking(request, booking_id, person_id):
     if ride.ride_type == "OFFER":
         ride.available_seats -= 1
         ride.save()
-    return Response({"message": "Booking confirmed"}, status=200)
+    return Response({
+        "booking_id": booking.id,
+        "status": booking.status,
+        "remaining_seats": ride.available_seats
+    }, status=200)
 
 @api_view(['PATCH'])
-def cancel_booking(request, booking_id, person_id):
+def cancel_booking(request, booking_id):
+    person_id = request.data.get('userId')
+    if not person_id:
+        return Response(
+            {"error": "userId is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         booking = Booking.objects.get(id=booking_id)
         person = Person.objects.get(id=person_id)
@@ -92,7 +115,13 @@ def cancel_booking(request, booking_id, person_id):
     return Response({"message": "Booking cancelled"}, status=200)
 
 @api_view(['PATCH'])
-def reject_booking(request, booking_id, person_id):
+def reject_booking(request, booking_id):
+    person_id = request.data.get('userId')
+    if not person_id:
+        return Response(
+            {"error": "userId is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         booking = Booking.objects.get(id=booking_id)
         person = Person.objects.get(id=person_id)
@@ -107,4 +136,44 @@ def reject_booking(request, booking_id, person_id):
 
     booking.status = Booking.STATUS_REJECTED
     booking.save()
-    return Response({"message": "Booking rejected"}, status=200)    
+    
+    return Response({
+        "booking_id": booking.id,
+        "status": booking.status
+    }, status=200)
+
+
+@api_view(['GET'])
+def rider_commutes(request, person_id):
+    # Logic to retrieve and return the rides for a specific rider
+    try:
+        person = Person.objects.get(id=person_id)
+    except Person.DoesNotExist:
+        return Response({"error": "Person not found"}, status=404) 
+       
+    bookings = Booking.objects.filter(rider_id=person_id)
+
+    serializer = BookingListSerializer(
+        bookings,
+        many=True,
+        context={"role": "rider"}
+    )
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def driver_commutes(request, person_id):
+    # Logic to retrieve and return the rides for a specific driver
+    try:
+        person = Person.objects.get(id=person_id)
+    except Person.DoesNotExist:
+        return Response({"error": "Person not found"}, status=404)    
+    bookings = Booking.objects.filter(
+        ride__carpooler_id=person_id
+    )
+
+    serializer = BookingListSerializer(
+        bookings,
+        many=True,
+        context={"role": "driver"}
+    )
+    return Response(serializer.data)
