@@ -36,20 +36,50 @@ class PersonSerializer(serializers.ModelSerializer):
             return sum(r.score for r in ratings) / ratings.count()
         return None
 
+# class LoginSerializer(serializers.Serializer):
+#     username= serializers.CharField()
+#     password=serializers.CharField(write_only=True)
+
+#     def validate(self, data):
+#         username= data.get("username")
+#         password= data.get("password")
+
+#         try:
+#             user = Person.objects.get(username=username)
+#         except Person.DoesNotExist:
+#             raise serializers.ValidationError("Invalid username or password")
+
+#         if not check_password(password, user.password):
+#             raise serializers.ValidationError("Invalid username or password")
+
+#         data["user"] = user
+#         return data
+
 class LoginSerializer(serializers.Serializer):
-    username= serializers.CharField()
-    password=serializers.CharField(write_only=True)
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username= data.get("username")
-        password= data.get("password")
+        username = data.get("username")
+        password = data.get("password")
+        
+        # Debug logging
+        print(f"Login attempt - Username: '{username}' (length: {len(username)})")
+        print(f"Login attempt - Password: '{password}' (length: {len(password)})")
 
         try:
             user = Person.objects.get(username=username)
+            print(f"User found: {user.username}")
+            print(f"Stored password hash: {user.password[:50]}...")
         except Person.DoesNotExist:
+            print("User not found in database")
             raise serializers.ValidationError("Invalid username or password")
 
-        if not check_password(password, user.password):
+        password_match = check_password(password, user.password)
+        print(f"Password match result: {password_match}")
+        
+        if not password_match:
+            print("Password check failed!")
             raise serializers.ValidationError("Invalid username or password")
 
         data["user"] = user
