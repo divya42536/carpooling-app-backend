@@ -52,7 +52,6 @@ def create_ride_for_person(request, person_id):
     return Response(serializer.errors, status=400)
 
 
-
 # @api_view(['POST'])
 # def login(request):
 #     username = request.data.get('username')

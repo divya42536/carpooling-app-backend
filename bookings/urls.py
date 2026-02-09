@@ -1,9 +1,11 @@
 from django.urls import path
-from .views import book_ride, confirm_booking, cancel_booking, reject_booking
+from .views import book_ride, confirm_booking, cancel_booking, driver_commutes, reject_booking, rider_commutes
 
 urlpatterns = [
-    path('rides/<int:ride_id>/bookings/<int:person_id>/', book_ride, name="book-ride"),
-    path('bookings/<int:booking_id>/confirm/<int:person_id>/', confirm_booking, name="confirm-booking"),
-    path('bookings/<int:booking_id>/cancel/<int:person_id>/', cancel_booking, name="cancel-booking"),
-    path('bookings/<int:booking_id>/reject/<int:person_id>/', reject_booking, name="reject-booking"),
+    path('rides/<int:ride_id>/bookings/', book_ride, name="book-ride"),
+    path('bookings/<int:booking_id>/confirm/', confirm_booking, name="confirm-booking"),
+    path('bookings/<int:booking_id>/cancel/', cancel_booking, name="cancel-booking"),
+    path('bookings/<int:booking_id>/reject/', reject_booking, name="reject-booking"),
+    path('bookings/rider/<int:person_id>/', rider_commutes),
+    path('bookings/driver/<int:person_id>/', driver_commutes),
 ]
