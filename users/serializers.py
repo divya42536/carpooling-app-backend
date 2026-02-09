@@ -77,6 +77,9 @@ class LoginSerializer(serializers.Serializer):
         
         if not password_match:
             print("Password check failed!")
+            raise serializers.ValidationError("Invalid username or password")
+        data["user"]= user
+        return data
     
 class RegisterSerializer(serializers.ModelSerializer):
     confirmpassword = serializers.CharField(write_only=True)
