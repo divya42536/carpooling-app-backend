@@ -7,6 +7,7 @@ from .views import ride_list,  get_ride_detail, search_ride, accept_ride_request
 # router.register(r'rides', RideViewSet, basename='ride')
 
 urlpatterns= [
+    path('rides/search/', search_ride, name='search-rides'),
     path('rides/', ride_list, name='ride-list'),
     # path('rides/', get_ride_list, name='get-ride-list'),
     path('rides/<int:pk>/', get_ride_detail, name='get-ride-detail'),

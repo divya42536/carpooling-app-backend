@@ -52,17 +52,36 @@ class LoginSerializer(serializers.Serializer):
         if user.password != data['password']:
             raise serializers.ValidationError("Invalid username or password")
 
-        data['user'] = user
+        data["user"] = user
+        return data
+    
+
+class RegisterSerializer(serializers.ModelSerializer):
+    confirmpassword = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Person
+        fields = ['username', 'password', 'confirmpassword', 'first_name', 'last_name', 'email', 'phone']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def validate_username(self, value):
+        if Person.objects.filter(username=value).exists():
+            raise serializers.ValidationError("A user with this username already exists")
+        return value
+
+    def validate_email(self, value):
+        if Person.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists")
+        return value
+
+    def validate(self, data):
+        if data['password'] != data['confirmpassword']:
+            raise serializers.ValidationError({"password": "Password and confirm password do not match"})
         return data
 
-        #  def validate(self, attrs):
-        # try:
-        #     user = Person.objects.get(username=attrs['username'])
-        # except Person.DoesNotExist:
-        #     raise serializers.ValidationError("Invalid username or password")
-
-        # if user.password != attrs['password']:
-        #     raise serializers.ValidationError("Invalid username or password")
-
-        # attrs['user'] = user
-        # return attrs
+    def create(self, validated_data):
+        validated_data.pop('confirmpassword')
+        validated_data['password'] = make_password(validated_data['password'])
+        return Person.objects.create(**validated_data)
