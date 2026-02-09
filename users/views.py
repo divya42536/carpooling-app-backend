@@ -11,6 +11,7 @@ from django.contrib.auth.hashers import check_password, make_password
 class PersonViewSet(ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    pagination_class = None
 
 class LoginView(APIView):
     def post(self, request):
@@ -22,13 +23,13 @@ class LoginView(APIView):
                 "message": "Login successful",
                 "user_id": user.id,
                 "username": user.username,
-                "password": user.password,
+                # "password": user.password,
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['DELETE'])
-def delete_a_user(request,person_id):
+def delete_a_user(request, person_id):
     try:
         person = Person.objects.get(pk=person_id)
     except Person.DoesNotExist:
@@ -78,7 +79,7 @@ def create_ride_for_person(request, person_id):
 
 @api_view(['POST'])
 def login(request):
-    data= request.data
+    data = request.data
     username = request.data.get('username')
     # email = request.data.get('email')
     password = request.data.get('password')
