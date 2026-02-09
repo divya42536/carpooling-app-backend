@@ -68,32 +68,16 @@ class LoginSerializer(serializers.Serializer):
         print(f"Login attempt - Password: '{password}' (length: {len(password)})")
 
         try:
-<<<<<<< HEAD
-            user = Person.objects.get(username=username)
-            print(f"User found: {user.username}")
-            print(f"Stored password hash: {user.password[:50]}...")
-=======
             user = Person.objects.get(username=data['username'])
->>>>>>> f1ce93a1498b3bb85b0a00e62625f7fd20cadf0b
         except Person.DoesNotExist:
             print("User not found in database")
             raise serializers.ValidationError("Invalid username or password")
-
-<<<<<<< HEAD
         password_match = check_password(password, user.password)
         print(f"Password match result: {password_match}")
         
         if not password_match:
             print("Password check failed!")
-=======
-        if user.password != data['password']:
->>>>>>> f1ce93a1498b3bb85b0a00e62625f7fd20cadf0b
-            raise serializers.ValidationError("Invalid username or password")
-
-        data["user"] = user
-        return data
     
-
 class RegisterSerializer(serializers.ModelSerializer):
     confirmpassword = serializers.CharField(write_only=True)
 
