@@ -64,8 +64,8 @@ class LoginSerializer(serializers.Serializer):
         password = data.get("password")
         
         # Debug logging
-        print(f"Login attempt - Username: '{username}' (length: {len(username)})")
-        print(f"Login attempt - Password: '{password}' (length: {len(password)})")
+        # print(f"Login attempt - Username: '{username}' (length: {len(username)})")
+        # print(f"Login attempt - Password: '{password}' (length: {len(password)})")
 
         try:
             user = Person.objects.get(username=data['username'])
