@@ -11,7 +11,7 @@ urlpatterns = [
 
     path("login/", LoginView.as_view(), name="login"),
     path('register/', RegisterView.as_view(), name='register'),
-    path('users/<int:person_id>/', delete_a_user),
+    path('<int:person_id>/', delete_a_user),
     path("persons/<int:person_id>/rides/", create_ride_for_person, name="create_ride_for_person"),
     
 ]

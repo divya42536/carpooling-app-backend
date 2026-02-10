@@ -77,23 +77,23 @@ def create_ride_for_person(request, person_id):
 #         "last_name": user.last_name
 #     })
 
-@api_view(['POST'])
-def login(request):
-    data = request.data
-    username = request.data.get('username')
-    # email = request.data.get('email')
-    password = request.data.get('password')
+# @api_view(['POST'])
+# def login(request):
+#     data = request.data
+#     username = request.data.get('username')
+#     # email = request.data.get('email')
+#     password = request.data.get('password')
 
-    try:
-        user = Person.objects.get(username=username)
-    except Person.DoesNotExist:
-        return Response({"error": "Invalid credentials"}, status=400)
+#     try:
+#         user = Person.objects.get(username=username)
+#     except Person.DoesNotExist:
+#         return Response({"error": "Invalid credentials"}, status=400)
 
-    if not check_password(password, user.password):
-        return Response({"error": "Invalid credentials"}, status=400)
+#     if not check_password(password, user.password):
+#         return Response({"error": "Invalid credentials"}, status=400)
 
-    token = user.generate_token()
-    return Response({"token": token, "user_id": user.id, "username": user.username})
+#     token = user.generate_token()
+#     return Response({"token": token, "user_id": user.id, "username": user.username})
 
 
 
