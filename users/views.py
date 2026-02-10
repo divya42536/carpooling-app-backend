@@ -113,5 +113,14 @@ class RegisterView(APIView):
                 }, status=status.HTTP_201_CREATED)
                 
 
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+def get_user(request, person_id):
+    try:
+        person= Person.objects.get(pk= person_id)
+        serializer= PersonSerializer(Person)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Person.DoesNotExist:
+        return Response({"error: User not found"},status=status.HTTP_404_NOT_FOUND)
+    
