@@ -8,6 +8,17 @@ from rest_framework import status
 from datetime import datetime
 from users.models import Person
 from bookings.models import Booking
+from math import radians, cos, sin, asin, sqrt
+
+def haversine(lat1, lon1, lat2, lon2):
+    # Haversine formula to calculate distance in km between two points
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    km = 6371 * c
+    return km
 # Create your views here.
 # logic handling path is : Request → View → Model → View → Response
 
@@ -63,32 +74,66 @@ def get_ride_detail(request,pk):
 
 @api_view(['GET'])
 def search_ride(request):
-    search_start_location = request.query_params.get('start_location')
-    search_end_location = request.query_params.get('end_location')
-    search_earliest_datetime = request.query_params.get('earliest_datetime')
-    search_latest_datetime = request.query_params.get('latest_datetime')
-    search_ride_type = request.query_params.get('ride_type')
-
-    if not all([search_start_location, search_end_location, search_earliest_datetime, search_latest_datetime, search_ride_type]):
-        return Response(
-            {"error": "All search parameters must be provided."},
-            status=status.HTTP_400_BAD_REQUEST
-        )
     try:
-        # search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime)
-        # search_latest_datetime = datetime.fromisoformat(search_latest_datetime)
+        search_start_lat = float(request.query_params.get('start_latitude'))
+        search_start_lng = float(request.query_params.get('start_longitude'))
+        search_end_lat = float(request.query_params.get('end_latitude'))
+        search_end_lng = float(request.query_params.get('end_longitude'))
+        search_ride_type = request.query_params.get('ride_type')
+        # driver_id = request.query_params.get('driverId')  # <-- NEW        
+
+        search_earliest_datetime = request.query_params.get('earliest_datetime')
+        search_latest_datetime = request.query_params.get('latest_datetime')
+        required = [
+            search_start_lat, search_start_lng,
+            search_end_lat, search_end_lng,
+            search_ride_type, search_earliest_datetime, search_latest_datetime
+]
+        
+
+        if any(v is None for v in required):
+            return Response(
+                {"error": "All search parameters must be provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )        
+        # if not all([search_start_lat, search_start_lng, search_end_lat, search_end_lng, search_ride_type, search_earliest_datetime, search_latest_datetime]):
+        #     return Response(
+        #         {"error": "All search parameters must be provided."},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )  
         search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime.replace("Z", "+00:00"))
-        search_latest_datetime = datetime.fromisoformat(search_latest_datetime.replace("Z", "+00:00"))
-    except ValueError:
+        search_latest_datetime = datetime.fromisoformat(search_latest_datetime.replace("Z", "+00:00"))  
+    except (TypeError, ValueError):
         return Response(
-            {"error": "Invalid datetime format. Use ISO format."},
+            {"error": "Invalid query parameters or datetime format."},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # search_start_location = request.query_params.get('start_location')
+    # search_end_location = request.query_params.get('end_location')
+    # search_earliest_datetime = request.query_params.get('earliest_datetime')
+    # search_latest_datetime = request.query_params.get('latest_datetime')
+    # search_ride_type = request.query_params.get('ride_type')
+
+    # if not all([search_start_location, search_end_location, search_earliest_datetime, search_latest_datetime, search_ride_type]):
+    #     return Response(
+    #         {"error": "All search parameters must be provided."},
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
+    # try:
+    #     # search_earliest_datetime = datetime.fromisoformat(search_earliest_datetime)
+    #     # search_latest_datetime = datetime.fromisoformat(search_latest_datetime)
+        
+    # except ValueError:
+    #     return Response(
+    #         {"error": "Invalid datetime format. Use ISO format."},
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
 
     # If all parameters are provided, proceed with the search logic
     rides = Ride.objects.filter(
-        start_location=search_start_location,
-        end_location=search_end_location,
+        # start_location=search_start_location,
+        # end_location=search_end_location,
         earliest_time__lte=search_latest_datetime,
         latest_time__gte=search_earliest_datetime,
         ride_type=search_ride_type
@@ -96,11 +141,38 @@ def search_ride(request):
 
     if search_ride_type == 'OFFER':
         rides = rides.filter(available_seats__gt=0)
+    START_RADIUS_KM = 5
+    END_RADIUS_KM = 5
 
-    serializer = RideSerializer(rides, many=True)
-    return Response(serializer.data)
+    matched_rides = []
 
+    for ride in rides:
+        # Skip rides without coordinates
+        if not all([
+            ride.start_latitude,
+            ride.start_longitude,
+            ride.end_latitude,
+            ride.end_longitude
+        ]):
+            continue 
+        start_distance = haversine(
+            search_start_lat, search_start_lng,
+            ride.start_latitude, ride.start_longitude
+        )
 
+        end_distance = haversine(
+            search_end_lat, search_end_lng,
+            ride.end_latitude, ride.end_longitude
+        )               
+
+        if start_distance <= START_RADIUS_KM and end_distance <= END_RADIUS_KM:
+
+            matched_rides.append(ride)
+
+    serializer = RideSerializer(matched_rides, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+ 
 
 
 @api_view(['POST'])
