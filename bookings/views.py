@@ -13,7 +13,7 @@ from .serializers import BookingSerializer, BookingListSerializer
 @api_view(['POST'])
 def book_ride(request, ride_id):
     #get ride and person details and validate
-    person_id = request.data.get('userId')
+    person_id = int(request.data.get('userId'))
 
     if not person_id:
         return Response(
@@ -53,7 +53,7 @@ def book_ride(request, ride_id):
 
 @api_view(['PATCH'])
 def confirm_booking(request, booking_id):
-    person_id = request.data.get('userId')
+    person_id = int(request.data.get('userId'))
     if not person_id:
         return Response(
             {"error": "userId is required"},
@@ -86,7 +86,7 @@ def confirm_booking(request, booking_id):
 
 @api_view(['PATCH'])
 def cancel_booking(request, booking_id):
-    person_id = request.data.get('userId')
+    person_id = int(request.data.get('userId'))
     if not person_id:
         return Response(
             {"error": "userId is required"},
@@ -116,7 +116,7 @@ def cancel_booking(request, booking_id):
 
 @api_view(['PATCH'])
 def reject_booking(request, booking_id):
-    person_id = request.data.get('userId')
+    person_id = int(request.data.get('userId'))
     if not person_id:
         return Response(
             {"error": "userId is required"},

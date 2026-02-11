@@ -1,12 +1,28 @@
 from .models import Ride
 from rest_framework import serializers
 from users.serializers import PersonSerializer
+from bookings.models import Booking
 
 class RideSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = '__all__'
         read_only_fields = ['carpooler','created_at']
+    def get_status(self, ride):
+        """
+        Computes booking status for driver view.
+        """
+        driver_id = self.context.get('driver_id')
+
+        # Rider search does not need status
+        if not driver_id:
+            return None
+
+        booking = Booking.objects.filter(
+            ride=ride
+        ).first()
+
+        return booking.status.upper() if booking else "PENDING"        
 
     def validate(self,data):
         ride_type = data.get('ride_type')

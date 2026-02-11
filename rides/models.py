@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Ride(models.Model):
+
     RIDE_TYPE_CHOICES = [('OFFER', 'Offer ride'), # driver offers a ride
                         ('REQUEST', 'Request ride')] # riderrequests a ride
     carpooler = models.ForeignKey(Person, on_delete=models.CASCADE)

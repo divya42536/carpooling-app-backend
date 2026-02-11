@@ -80,7 +80,7 @@ def search_ride(request):
         search_end_lat = float(request.query_params.get('end_latitude'))
         search_end_lng = float(request.query_params.get('end_longitude'))
         search_ride_type = request.query_params.get('ride_type')
-        # driver_id = request.query_params.get('driverId')  # <-- NEW        
+        driver_id = request.query_params.get('driver_id')  # <-- NEW
 
         search_earliest_datetime = request.query_params.get('earliest_datetime')
         search_latest_datetime = request.query_params.get('latest_datetime')
@@ -144,7 +144,7 @@ def search_ride(request):
     START_RADIUS_KM = 5
     END_RADIUS_KM = 5
 
-    matched_rides = []
+    matched_rides = []  # new
 
     for ride in rides:
         # Skip rides without coordinates
@@ -166,10 +166,14 @@ def search_ride(request):
         )               
 
         if start_distance <= START_RADIUS_KM and end_distance <= END_RADIUS_KM:
-
             matched_rides.append(ride)
 
-    serializer = RideSerializer(matched_rides, many=True)
+    serializer = RideSerializer(
+        matched_rides,
+        many=True,
+        context={"driver_id": driver_id}
+    )
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
  
@@ -193,16 +197,18 @@ def accept_ride_request(request, ride_request_id):
 
     if ride_request.carpooler == driver:
         return Response({"error": "Cannot accept your own request"}, status=400)
-    if ride_request.status != "PENDING":
+    # Check if a Booking already exists for this ride and driver
+    existing_booking = Booking.objects.filter(ride=ride_request, rider=ride_request.carpooler).first()
+    if existing_booking and existing_booking.status.upper() != "PENDING":
         return Response({"error": "Request already handled"}, status=400)
+    # Reduce available seats
+    if ride_request.available_seats is not None and ride_request.available_seats <= 0:
+        return Response({"error": "No seats available"}, status=400)
 
-    if ride_request.available_seats <= 0:
-        return Response(
-            {"error": "No seats available"},
-            status=400
-        )
-    ride_request.available_seats -= 1
-    ride_request.save()
+    # Reduce available seats
+    if ride_request.available_seats is not None:
+        ride_request.available_seats -= 1
+        ride_request.save()
     # create booking
     booking = Booking.objects.create(
         ride=ride_request,
@@ -219,11 +225,39 @@ def accept_ride_request(request, ride_request_id):
 @api_view(['POST'])
 def reject_ride_request(request, ride_request_id):
     driver_id = request.data.get("userId")
+    try:
+        ride_request = Ride.objects.get(
+            id=ride_request_id,
+            ride_type="REQUEST"
+        )
+        driver = Person.objects.get(id=driver_id)
+    except (Ride.DoesNotExist, Person.DoesNotExist):
+        return Response({"error": "Ride request or driver not found"}, status=404)
 
-    if not driver_id:
-        return Response({"error": "driverId is required"}, status=400)
+    if ride_request.carpooler == driver:
+        return Response({"error": "Cannot reject your own request"}, status=400)
 
-    # no booking created
-    # optionally log rejection for analytics
+    # Check if a booking already exists
+    existing_booking = Booking.objects.filter(ride=ride_request, rider=ride_request.carpooler).first()
+    if existing_booking and existing_booking.status.upper() != "PENDING":
+        return Response({"error": "Request already handled"}, status=400)
 
-    return Response({"message": "Ride request rejected"}, status=200)
+    # Create a rejected booking so frontend can know the status
+    booking = Booking.objects.create(
+        ride=ride_request,
+        rider=ride_request.carpooler,
+        status=Booking.STATUS_REJECTED
+    )
+
+    return Response({
+        "bookingId": booking.id,
+        "status": booking.status
+    }, status=200)    
+
+    # if not driver_id:
+    #     return Response({"error": "driverId is required"}, status=400)
+
+    # # no booking created
+    # # optionally log rejection for analytics
+
+    # return Response({"message": "Ride request rejected"}, status=200)
