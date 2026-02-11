@@ -204,7 +204,13 @@ def accept_ride_request(request, ride_request_id):
     # Reduce available seats
     if ride_request.available_seats is not None and ride_request.available_seats <= 0:
         return Response({"error": "No seats available"}, status=400)
+    
+     # Store original rider
+    original_rider = ride_request.carpooler
 
+    # Assign driver as carpooler
+    ride_request.carpooler = driver
+    ride_request.ride_type = "OFFER"
     # Reduce available seats
     if ride_request.available_seats is not None:
         ride_request.available_seats -= 1
@@ -212,7 +218,7 @@ def accept_ride_request(request, ride_request_id):
     # create booking
     booking = Booking.objects.create(
         ride=ride_request,
-        rider=ride_request.carpooler,
+        rider=original_rider,
         status=Booking.STATUS_CONFIRMED
     )
 
