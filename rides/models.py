@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Ride(models.Model):
+
     RIDE_TYPE_CHOICES = [('OFFER', 'Offer ride'), # driver offers a ride
                         ('REQUEST', 'Request ride')] # riderrequests a ride
     carpooler = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -15,6 +16,10 @@ class Ride(models.Model):
     latest_time= models.DateTimeField()
     available_seats= models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    start_latitude = models.FloatField(null=True, blank=True)   # NEW
+    start_longitude = models.FloatField(null=True, blank=True)  # NEW
+    end_latitude = models.FloatField(null=True, blank=True)     # NEW
+    end_longitude = models.FloatField(null=True, blank=True)    # NEW
 
 
     def __str__(self):
